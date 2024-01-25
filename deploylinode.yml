@@ -1,0 +1,67 @@
+- name: Create Linode instance
+  hosts: localhost
+  vars_files:
+    - ./group_vars/vars.yml
+  tasks:
+    - name: Create a Linode instance
+      linode.cloud.instance:
+        api_token: "{{ linode_token }}"
+        label: my-ansible-linode
+        type: g6-standard-4
+        region: us-east
+        image: linode/ubuntu22.04
+        root_pass: "{{ password }}"
+        authorized_keys:
+          - "{{ ssh_key }}"
+        wait: true
+        wait_timeout: 300
+        state: present
+      register: instance_result
+
+    - name: Display host information
+      debug:
+        msg: 
+          CREATED {{ instance_result.instance.label }} => {{ instance_result.instance.ipv4[0] }}
+      when: instance_result.changed
+
+    - name: Add the new host to dynamic inventory
+      add_host:
+        hostname: "{{ instance_result.instance.ipv4[0] }}"
+        groupname: linodes
+
+    - name: Wait for SSH to come up
+      local_action:
+        module: wait_for
+        delay: 60
+        host: "{{ instance_result.instance.ipv4[0] }}"
+        port: 22
+        timeout: 300
+
+- name: Prepare the new instance
+  hosts: linodes
+  vars_files:
+    - ./group_vars/vars.yml
+  user: root
+  gather_facts: true
+  tasks:
+    - name: Create user
+      user:
+        name: ubuntu
+        state: present
+        createhome: true
+        groups: "sudo"
+
+    - name: Add user to sudo
+      lineinfile:
+        state: present
+        create: true
+        owner: root
+        group: root
+        path: "/etc/sudoers.d/ubuntu"
+        line: "ubuntu ALL=(ALL) NOPASSWD: ALL"
+        mode: 0440
+
+    - name: Add ssh keys
+      authorized_key:
+        user: ubuntu
+        key: "{{ ssh_key }}"

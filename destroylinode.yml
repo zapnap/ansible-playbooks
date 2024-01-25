@@ -1,0 +1,10 @@
+- name: Destroy Linode Instance
+  hosts: localhost
+  vars_files:
+    - ./group_vars/vars.yml
+  tasks:
+  - name: Delete a Linode instance
+    linode.cloud.instance:
+      label: my-ansible-linode
+      api_token: "{{ linode_token }}"
+      state: absent
