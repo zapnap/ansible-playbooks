@@ -65,3 +65,15 @@
       authorized_key:
         user: ubuntu
         key: "{{ ssh_key }}"
+
+    - name: Update apt
+      apt: update_cache=yes
+
+    - name: Install build tools
+      apt: state=latest name={{ item }}
+      with_items:
+        - build-essential
+        - git
+        - vim
+        - curl
+        - nodejs
