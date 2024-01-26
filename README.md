@@ -1,6 +1,6 @@
-## Ansible scripts
+## Ansible playbooks
 
-Just some example Ansible scripts.
+Just some Ansible stuffs...
 
 ### References
 
