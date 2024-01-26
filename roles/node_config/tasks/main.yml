@@ -1,0 +1,41 @@
+---
+- name: Create user
+  user:
+    name: ubuntu
+    state: present
+    createhome: true
+    groups: "sudo"
+  become: true
+
+- name: Add user to sudo
+  lineinfile:
+    state: present
+    create: true
+    owner: root
+    group: root
+    path: "/etc/sudoers.d/ubuntu"
+    line: "ubuntu ALL=(ALL) NOPASSWD: ALL"
+    mode: 0440
+  become: true
+
+- name: Add ssh keys
+  authorized_key:
+    user: ubuntu
+    key: "{{ ssh_key }}"
+  become: true
+
+- name: Update apt
+  apt: update_cache=yes
+  become: true
+
+- name: Install build tools
+  apt: state=latest name={{ item }}
+  with_items:
+    - build-essential
+    - golang
+    - git
+    - vim
+    - curl
+    - nodejs
+  become: true
+

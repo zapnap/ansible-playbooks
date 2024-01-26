@@ -1,0 +1,9 @@
+---
+- name: Destroy
+  hosts: localhost
+  gather_facts: false
+  vars_files:
+    - ./group_vars/vars.yml
+  roles:
+    - node_destroy
+

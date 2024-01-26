@@ -1,0 +1,6 @@
+---
+- name: Destroy Linode Instance
+  linode.cloud.instance:
+    label: "{{ linode_label }}"
+    api_token: "{{ linode_token }}"
+    state: absent
