@@ -3,6 +3,7 @@
   user:
     name: ubuntu
     state: present
+    shell: "/bin/bash"
     createhome: true
     groups: "sudo"
   become: true
@@ -32,10 +33,22 @@
   apt: state=latest name={{ item }}
   with_items:
     - build-essential
-    - golang
     - git
     - vim
     - curl
     - nodejs
   become: true
 
+- name: Install golang
+  ansible.builtin.unarchive:
+    src: "https://dl.google.com/go/go1.20.13.linux-amd64.tar.gz"
+    dest: /usr/local
+    mode: 0755
+    remote_src: yes
+  become: true
+
+- name: Link golang
+  alternatives:
+    name: "go"
+    path: "/usr/local/go/bin/go"
+    link: "/usr/local/bin/go"
