@@ -26,6 +26,15 @@
         hostname: "{{ instance_result.instance.ipv4[0] }}"
         groupname: linodes
 
+    - name: Write IP to hosts.ini
+      ansible.builtin.copy:
+        content: |
+          [linodes]
+          {{ instance_result.instance.ipv4[0] }}
+        dest: "{{ playbook_dir }}/hosts.ini"
+        mode: "0644"
+      delegate_to: localhost
+
     - name: Wait for SSH to come up
       ansible.builtin.wait_for:
         delay: 60

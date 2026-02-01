@@ -4,3 +4,9 @@
     label: "{{ linode_label }}"
     api_token: "{{ linode_token }}"
     state: absent
+
+- name: Clear hosts.ini
+  ansible.builtin.copy:
+    content: "[linodes]\n"
+    dest: "{{ playbook_dir }}/hosts.ini"
+    mode: "0644"
