@@ -1,4 +1,15 @@
 ---
+- name: Read current IP from hosts.ini
+  ansible.builtin.slurp:
+    src: "{{ playbook_dir }}/hosts.ini"
+  register: hosts_content
+  delegate_to: localhost
+
+- name: Extract IP address
+  ansible.builtin.set_fact:
+    old_ip: "{{ hosts_content.content | b64decode | regex_search('\\d+\\.\\d+\\.\\d+\\.\\d+') }}"
+  delegate_to: localhost
+
 - name: Destroy Linode Instance
   linode.cloud.instance:
     label: "{{ linode_label }}"
@@ -10,3 +21,10 @@
     content: "[linodes]\n"
     dest: "{{ playbook_dir }}/hosts.ini"
     mode: "0644"
+
+- name: Remove old IP from known_hosts
+  ansible.builtin.known_hosts:
+    name: "{{ old_ip }}"
+    state: absent
+  delegate_to: localhost
+  when: old_ip is defined and old_ip | length > 0
