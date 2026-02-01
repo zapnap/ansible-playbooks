@@ -27,9 +27,9 @@
         groupname: linodes
 
     - name: Wait for SSH to come up
-      local_action:
-        module: wait_for
+      ansible.builtin.wait_for:
         delay: 60
         host: "{{ instance_result.instance.ipv4[0] }}"
         port: 22
         timeout: 300
+      delegate_to: localhost

@@ -1,4 +1,7 @@
 ---
+# Base server configuration with hardening
+
+# === User Setup ===
 - name: Create user
   user:
     name: ubuntu
@@ -25,6 +28,7 @@
     key: "{{ ssh_key }}"
   become: true
 
+# === System Packages ===
 - name: Update apt
   apt: update_cache=yes
   become: true
@@ -39,6 +43,7 @@
     - nodejs
   become: true
 
+# === Golang ===
 - name: Install golang
   ansible.builtin.unarchive:
     src: "https://dl.google.com/go/go1.20.13.linux-amd64.tar.gz"
@@ -52,3 +57,16 @@
     name: "go"
     path: "/usr/local/go/bin/go"
     link: "/usr/local/bin/go"
+
+# === Hardening ===
+- name: Configure swap
+  ansible.builtin.include_tasks: swap.yml
+
+- name: Configure automatic updates
+  ansible.builtin.include_tasks: updates.yml
+
+- name: Configure fail2ban
+  ansible.builtin.include_tasks: fail2ban.yml
+
+- name: Harden SSH (run last - may disconnect root)
+  ansible.builtin.include_tasks: ssh.yml
